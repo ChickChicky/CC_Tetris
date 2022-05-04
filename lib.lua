@@ -1,5 +1,5 @@
 VERSION = 
-2
+3
 
 typeof = type;
 function table.find(t,match)
