@@ -37,7 +37,7 @@ if args[1] == 'update' then
     ]]
     local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
     res.readLine(); -- just reads the first line which doesn't matter
-    local ver = parseVersion(loadstring('return '..res.readLine(false)));
+    local ver = parseVersion(loadstring('return '..res.readLine(false))());
     res.close();
 
     if ver > parseVersion(VERSION) then
@@ -62,7 +62,7 @@ if args[1] == 'update' then
 
     local cx,cy = term.getCursorPos();
     term.setTextColor(colors.gray);
-    print('press any key to continue...');
+    term.write('press any key to continue...');
     sleep(1);
     term.setCursorPos(1,cy);
     term.setTextColor(colors.lightGray);
@@ -82,7 +82,7 @@ if not q then
     if res then code, msg = res.getResponseCode() end;
     if res ~= nil and code == 200 then
         res.readLine(); -- just reads the first line which doesn't matter
-        local ver = parseVersion(loadstring('return '..res.readLine(false)));
+        local ver = parseVersion(loadstring('return '..res.readLine(false))());
         res.close();
 
         if ver > parseVersion(VERSION) then
