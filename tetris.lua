@@ -37,11 +37,11 @@ if args[1] == 'update' then
     ]]
     local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
     res.readLine(); -- just reads the first line which doesn't matter
-    local ver = parseVersion(loadstring('return '..res.readLine(false))());
+    local ver = loadstring('return '..res.readLine(false))();
     res.close();
 
-    if ver > parseVersion(VERSION) then
-        print('Newer version found; do you wish to proceed with the installation ?');
+    if parseVersion(ver) > parseVersion(VERSION) then
+        print('Newer version found ('..VERSION..' -> '..ver..'); do you wish to proceed with the installation ?');
         local r = read();
         if r == 'y' or r == 'Y' or r == 'Yes' or r == 'yes' then
             term.clear();
@@ -56,7 +56,7 @@ if args[1] == 'update' then
     else
         local c = term.getTextColor();
         term.setTextColor(colors.green);
-        print('Up to date\n');
+        print('Up to date ('..VERSION..')\n');
         term.setTextColor(c);
     end
 
@@ -82,11 +82,11 @@ if not q then
     if res then code, msg = res.getResponseCode() end;
     if res ~= nil and code == 200 then
         res.readLine(); -- just reads the first line which doesn't matter
-        local ver = parseVersion(loadstring('return '..res.readLine(false))());
+        local ver = loadstring('return '..res.readLine(false))();
         res.close();
 
-        if ver > parseVersion(VERSION) then
-            term.setTextColor(colors.lime) print('newer version found, exit and type "tetris update" to download it')
+        if parseVersion(ver) > parseVersion(VERSION) then
+            term.setTextColor(colors.lime) print('newer version found ('..VERSION..' -> '..ver..'), exit and type "tetris update" to download it')
             
             local cx,cy = term.getCursorPos();
             term.setTextColor(colors.gray);
@@ -360,6 +360,16 @@ function demo()
     local x = 1;
     local y = 1;
 
+    local handle, err = fs.open('.tetris','r');
+    local dat;
+    if (err) then
+        dat = {};
+    else
+        dat = textutils.unserialiseJSON(handle.readAll()) or {};
+        handle.close();
+    end
+    local ss = dat.ss;
+
     os.queueEvent('upd'); -- allows the first frame to be rendered
     while true do
 
@@ -415,7 +425,7 @@ function demo()
                 local options = {
                     'return to tutorial',
                     'scoreboard',
-                    'change session name',
+                    'change session name'
                 }
 
                 local quit = false;
@@ -428,13 +438,25 @@ function demo()
                         term.setCursorPos(1,1);
     
                         term.setTextColor(colors.white);
-                        term.write('Menu   ');
-
+                        term.write('Menu    ');
+    
+                        term.write('Score: ');
+                        term.setTextColor(colors.red);
+                        term.write(tostring(score or '<no score>'));
                         if sname then
                             term.setTextColor(colors.white);
-                            term.write('Name: ');
+                            term.write('    Name: ');
                             term.setTextColor(colors.magenta);
                             term.write(sname);
+                        end
+                        if ss then
+                            term.setCursorPos(9,2);
+                            term.setTextColor(colors.white);
+                            term.write('SS: ');
+                            term.setTextColor(colors.magenta);
+                            term.write(ss);
+                        else
+                            print(); -- just adds a newline
                         end
                         term.setTextColor(colors.white);
                         print('\n');
@@ -471,28 +493,52 @@ function demo()
                                 break;
                             elseif c == 'scoreboard' then
                                 clr();
-
+    
                                 local handle, err = fs.open('.tetris','r');
-                                local rdat;
-                                if handle then rdat = textutils.unserialiseJSON(handle.readAll()) end;
-                                if (err or (not rdat) or (#rdat.scores==0) ) then
+                                local dat;
+                                if handle then dat = textutils.unserialiseJSON(handle.readAll()) end;
+                                if (err or (not dat) or (#dat.scores==0) ) then
                                     term.setTextColor(colors.lightGray);
                                     print('<no data>');
                                 else
-                                    local dat = rdat.scores;
+                                    dat = dat.scores;
                                     handle.close();
+                                    loadss(ss,dat);
+                                    --table.insert(dat,{t='now',s=score});
                                     table.sort(dat, function(a,b) return a.s > b.s end);
                                     local bsl = 0;
                                     for _,s in pairs(dat) do
                                         bsl = math.max(bsl,#tostring(s.s));
                                     end
                                     for _,s in pairs(dat) do
-                                        term.setTextColor(colors.red) term.write(s.s) term.setTextColor(colors.gray);
+                                        -- name of the scorer
                                         local n = '';
                                         if s.n then
                                             n = ' ('..s.n..') ';
                                         end
-                                        print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n);
+    
+                                        -- origin of the score
+                                        local o = '';
+                                        if s.org == 'ss' then
+                                            o = ' [server] ';
+                                        end
+    
+                                        -- flag of the score
+                                        local f = ' ';
+                                        if s.org == 'ss' then
+                                            f = 'S';
+                                        elseif s.t == 'now' then
+                                            f = 'C';
+                                        end
+    
+                                        term.setTextColor(colors.gray) term.write(f..' ');
+                                        term.setTextColor(colors.red) term.write(s.s) term.setTextColor(colors.gray);
+    
+                                        if s.t == 'now' then
+                                            print(string.rep(' ',bsl-#tostring(s.s)+1)..n..'<current score>');
+                                        else
+                                            print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n..o);
+                                        end
                                     end
                                 end
                                 term.setTextColor(colors.gray);
@@ -585,6 +631,7 @@ else
     handle.close();
 end
 local g = dat.g;
+local ss = dat.ss;
 if g == nil then g = true end;
 
 --local sname = nil; -- session name
@@ -648,9 +695,10 @@ while true do
             local quit = false;
             local options = {
                 'return to game',
-                'save and exit',
                 'scoreboard',
+                'save and exit',
                 'change session name',
+                'set scores server',
                 'clear',
                 'toggle ghost'
             }
@@ -662,16 +710,25 @@ while true do
                     term.setCursorPos(1,1);
 
                     term.setTextColor(colors.white);
-                    term.write('Menu   ');
+                    term.write('Menu    ');
 
-                    term.write('Score:');
+                    term.write('Score: ');
                     term.setTextColor(colors.red);
                     term.write(tostring(score));
                     if sname then
                         term.setTextColor(colors.white);
-                        term.write('   Name: ');
+                        term.write('    Name: ');
                         term.setTextColor(colors.magenta);
                         term.write(sname);
+                    end
+                    if ss then
+                        term.setCursorPos(9,2);
+                        term.setTextColor(colors.white);
+                        term.write('SS: ');
+                        term.setTextColor(colors.magenta);
+                        term.write(ss);
+                    else
+                        print(); -- just adds a newline
                     end
                     term.setTextColor(colors.white);
                     print('\n');
@@ -721,6 +778,7 @@ while true do
                             else
                                 dat = dat.scores;
                                 handle.close();
+                                loadss(ss,dat);
                                 table.insert(dat,{t='now',s=score});
                                 table.sort(dat, function(a,b) return a.s > b.s end);
                                 local bsl = 0;
@@ -728,17 +786,33 @@ while true do
                                     bsl = math.max(bsl,#tostring(s.s));
                                 end
                                 for _,s in pairs(dat) do
-                                    term.setTextColor(colors.red) term.write(s.s) term.setTextColor(colors.gray);
+                                    -- name of the scorer
                                     local n = '';
-
                                     if s.n then
                                         n = ' ('..s.n..') ';
                                     end
 
+                                    -- origin of the score
+                                    local o = '';
+                                    if s.org == 'ss' then
+                                        o = ' [server] ';
+                                    end
+
+                                    -- flag of the score
+                                    local f = ' ';
+                                    if s.org == 'ss' then
+                                        f = 'S';
+                                    elseif s.t == 'now' then
+                                        f = 'C';
+                                    end
+
+                                    term.setTextColor(colors.gray) term.write(f..' ');
+                                    term.setTextColor(colors.red) term.write(s.s) term.setTextColor(colors.gray);
+
                                     if s.t == 'now' then
                                         print(string.rep(' ',bsl-#tostring(s.s)+1)..n..'<current score>');
                                     else
-                                        print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n);
+                                        print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n..o);
                                     end
                                 end
                             end
@@ -808,6 +882,31 @@ while true do
                             handle.write(textutils.serialiseJSON(dat));
                             handle.flush();
                             handle.close();
+                        elseif c == 'set scores server' then
+                            local ssa;
+                            while true do
+                                clr();
+                                term.write('new scores server (leave blank to clear): '); term.setTextColor(colors.magenta);
+                                ssa = read(nil,nil,nil,ssa or ss);
+
+                                if ssa == '' then break end;
+
+                                local conn = http.get(ssa,{action="ping"});
+                                if conn == nil then
+                                    term.write('impossible to connect to the server, do you still want to proceed? '); term.setTextColor(colors.cyan);
+                                    local r = read(nil,nil,nil,nil);
+                                    if r == 'yes' or r == 'y' then
+                                        break;
+                                    end
+                                else
+                                    term.write('successfully set the scores server !');
+                                    print();
+                                    break;
+                                end
+
+                            end
+                            pak();
+                            ss = ssa;
                         end
                     end
                 elseif evtName == "terminate" then
@@ -1005,24 +1104,37 @@ while true do
 end
 
 if not q then
+    local rhandle, err = fs.open('.tetris','r');
+    local dat;
+    if (err) then
+        dat = {scores={}};
+    else
+        dat = textutils.unserialiseJSON(rhandle.readAll()) or {scores={}};
+        rhandle.close();
+    end
+    local whandle = fs.open('.tetris','w');
     if score > 0 then
         -- saves the score
-        local handle, err = fs.open('.tetris','r');
-        local dat;
-        if (err) then
-            dat = {scores={}};
+
+        local scoret = {t=os.epoch('local'),s=score,n=sname,p=ph,u=ss};
+
+        if ss then
+            local err = savess(ss,scoret);
+            if err then
+                term.setTextColor(colors.red);
+                print('Could not save online score: '..err);
+            end
         else
-            dat = textutils.unserialiseJSON(handle.readAll()) or {scores={}};
-            handle.close();
+            table.insert(dat.scores,scoret);
         end
-        table.insert(dat.scores,{t=os.epoch('local'),s=score,n=sname,p=ph});
-        dat.name = sname;
-        dat.g = g;
-        local handle = fs.open('.tetris','w');
-        handle.write(textutils.serialiseJSON(dat));
-        handle.flush();
-        handle.close();
     end
+
+    dat.name = sname;
+    dat.g = g;
+    dat.ss = ss;
+
+    whandle.write(textutils.serialiseJSON(dat));
+    whandle.close();
 
     term.clear();
     display_frame(nil,score);

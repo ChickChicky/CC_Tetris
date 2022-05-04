@@ -1,7 +1,9 @@
 VERSION = 
-'0.4.0'
+'0.5.0'
 
 typeof = type;
+
+-- tables stuff
 function table.find(t,match)
     local omatch = match;
     if typeof(match) ~= 'function' then
@@ -73,11 +75,54 @@ function table.imap(t,fn)
     end
     return nt;
 end
+
 function parseVersion(v)
     if typeof(v) == 'string' then
         local major, minor, patch = v:match('(%w+)%.(%w+)%.(%w+)');
         return major * 1000000 + minor * 1000 + patch;
     else
         return v;
+    end
+end
+function pak(t)
+    if t == nil then t = 1 end;
+    local cx,cy = term.getCursorPos();
+    term.setTextColor(colors.gray);
+    print('press any key to continue...');
+    sleep(t);
+    term.setCursorPos(1,cy);
+    term.setTextColor(colors.lightGray);
+    term.write('press any key to continue...');
+    sleep(0.05);
+    term.setCursorPos(1,cy);
+    term.setTextColor(colors.white);
+    term.write('press any key to continue...');
+    os.pullEvent('key');
+end
+
+-- SS
+function loadss(ss,dat)
+    if ss then
+        local conn = http.get(ss,{action="get"});
+        local code, msg;
+        if conn then code, msg = conn.getResponseCode() end;
+        if conn ~= nil and code == 200 then
+            for _,s in pairs(textutils.unserialiseJSON(conn.readAll())) do
+                s.org = 'ss';
+                table.insert(dat,s);
+            end
+        else
+            return msg;
+        end
+    end
+end
+function savess(ss,scoret)
+    if ss then
+        local conn = http.get(ss,{action="save",payload=textutils.serialiseJSON(scoret)});
+        local code, msg;
+        if conn then code, msg = conn.getResponseCode() end;
+        if not( conn ~= nil and code == 200 ) then
+            return msg;
+        end
     end
 end
