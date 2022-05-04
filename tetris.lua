@@ -10,7 +10,7 @@ local q = false;
 args = {...};
 
 if args[1] == 'update' then
-    q = true;
+    q = 2;
     -- old pastebin version
     --[[
     local res = http.get('https://pastebin.com/raw/g26ueH22');
@@ -997,8 +997,10 @@ if not q then
     os.pullEvent('key');
 end
 
-term.clear();
-term.setCursorPos(1,1);
+if q ~= 2 then
+    term.clear();
+    term.setCursorPos(1,1);
+end
 
 -- display all pieces in a 6x5 square
 -- display_piece(pieces[1].variants[1],1,1);
