@@ -42,7 +42,9 @@ if args[1] == 'update' then
 
     if parseVersion(ver) > parseVersion(VERSION) then
         print('Newer version found ('..VERSION..' -> '..ver..'); do you wish to proceed with the installation ?');
+        term.setTextColor(colors.cyan);
         local r = read();
+        term.setTextColor(colors.white);
         if r == 'y' or r == 'Y' or r == 'Yes' or r == 'yes' then
             term.clear();
             term.setCursorPos(1,1);
@@ -84,6 +86,9 @@ if not q then
         res.readLine(); -- just reads the first line which doesn't matter
         local ver = loadstring('return '..res.readLine(false))();
         res.close();
+
+        --print(VERSION,ver)
+        --sleep(5);
 
         if parseVersion(ver) > parseVersion(VERSION) then
             term.setTextColor(colors.lime) print('newer version found ('..VERSION..' -> '..ver..'), exit and type "tetris update" to download it')
@@ -495,24 +500,42 @@ function demo()
                                 clr();
     
                                 local handle, err = fs.open('.tetris','r');
-                                local dat;
+                                local dat = {scores={}};
                                 if handle then 
+                                    -- print(handle.readAll());
+                                    -- sleep(1);
+                                    --local log = fs.open('tetris.log','a');
+                                    --log.write("BEFORE:\n"..textutils.serialise(dat).."\n---------------\n");
+                                    -- dat = textutils.unserialiseJSON(handle.readAll());
+                                    --log.write("CONTENT:\n"..content.."\n---------------\n");
+                                    --local tempdat = textutils.unserialiseJSON(content);
+                                    --for k,v in pairs(tempdat) do dat[k] = v end;
+                                    --log.write("AFTER:\n"..textutils.serialise(dat).."\n---------------\n");
+                                    --log.write("SCORES ID:"..tostring(dat.scores).."\n---------------\n");
+                                    --debug.
+                                    --log.close();
+                                    --print("local.scores.length="..tostring(#dat.scores));
                                     dat = textutils.unserialiseJSON(handle.readAll());
-                                    loadss(ss,dat);
+                                    --print(#dat.scores);
+                                    loadss(ss,dat.scores);
                                 end;
-                                if (err or (not dat) or (#dat.scores==0) ) then
+                                handle.close();
+                                if ( err and not(dat) ) then
                                     term.setTextColor(colors.lightGray);
                                     print('<no data>');
                                 else
                                     dat = dat.scores;
-                                    handle.close();
                                     --table.insert(dat,{t='now',s=score});
                                     table.sort(dat, function(a,b) return a.s > b.s end);
                                     local bsl = 0;
+                                    local lsn = 0;
                                     for _,s in pairs(dat) do
                                         bsl = math.max(bsl,#tostring(s.s));
+                                        lsn = math.max(lsn,#(s.n or '')+2);
                                     end
+                                    lsn = lsn +1;
                                     for _,s in pairs(dat) do
+                                        --print('E');
                                         -- name of the scorer
                                         local n = '';
                                         if s.n then
@@ -539,10 +562,11 @@ function demo()
                                         if s.t == 'now' then
                                             print(string.rep(' ',bsl-#tostring(s.s)+1)..n..'<current score>');
                                         else
-                                            print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n..o);
+                                            print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n..(' '):rep(math.max(1,lsn-(#n-2)))..o);
                                         end
                                     end
                                 end
+                                print(#dat);
                                 term.setTextColor(colors.gray);
                                 print();
                                 print('press any key to return back to menu');
@@ -772,24 +796,42 @@ while true do
                             clr();
 
                             local handle, err = fs.open('.tetris','r');
-                            local dat;
+                            local dat = {scores={}};
                             if handle then 
+                                -- print(handle.readAll());
+                                -- sleep(1);
+                                --local log = fs.open('tetris.log','a');
+                                --log.write("BEFORE:\n"..textutils.serialise(dat).."\n---------------\n");
+                                -- dat = textutils.unserialiseJSON(handle.readAll());
+                                --log.write("CONTENT:\n"..content.."\n---------------\n");
+                                --local tempdat = textutils.unserialiseJSON(content);
+                                --for k,v in pairs(tempdat) do dat[k] = v end;
+                                --log.write("AFTER:\n"..textutils.serialise(dat).."\n---------------\n");
+                                --log.write("SCORES ID:"..tostring(dat.scores).."\n---------------\n");
+                                --debug.
+                                --log.close();
+                                --print("local.scores.length="..tostring(#dat.scores));
                                 dat = textutils.unserialiseJSON(handle.readAll());
-                                loadss(ss,dat);
+                                --print(#dat.scores);
+                                loadss(ss,dat.scores);
                             end;
-                            if (err or (not dat) or (#dat.scores==0) ) then
+                            handle.close();
+                            if ( err and not(dat) ) then
                                 term.setTextColor(colors.lightGray);
                                 print('<no data>');
                             else
                                 dat = dat.scores;
-                                handle.close();
                                 table.insert(dat,{t='now',s=score});
                                 table.sort(dat, function(a,b) return a.s > b.s end);
                                 local bsl = 0;
+                                local lsn = 0;
                                 for _,s in pairs(dat) do
                                     bsl = math.max(bsl,#tostring(s.s));
+                                    lsn = math.max(lsn,#(s.n or '')+2);
                                 end
+                                lsn = lsn +1;
                                 for _,s in pairs(dat) do
+                                    --print('E');
                                     -- name of the scorer
                                     local n = '';
                                     if s.n then
@@ -810,16 +852,17 @@ while true do
                                         f = 'C';
                                     end
 
-                                    term.setTextColor(colors.gray) term.write(f..' ');
+                                    term.setTextColor(colors.cyan) term.write(f..' ');
                                     term.setTextColor(colors.red) term.write(s.s) term.setTextColor(colors.gray);
 
                                     if s.t == 'now' then
                                         print(string.rep(' ',bsl-#tostring(s.s)+1)..n..'<current score>');
                                     else
-                                        print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n..o);
+                                        print(string.rep(' ',bsl-#tostring(s.s)+1)..os.date('!%d/%m/%G %H:%M',s.t/1000)..n..(' '):rep(math.max(1,lsn-(#n-2)))..o);
                                     end
                                 end
                             end
+                            print(#dat);
                             term.setTextColor(colors.gray);
                             print();
                             print('press any key to return back to menu');

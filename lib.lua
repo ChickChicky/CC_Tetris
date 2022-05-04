@@ -1,5 +1,5 @@
 VERSION = 
-'0.5.1'
+'0.5.2'
 
 typeof = type;
 
@@ -76,6 +76,7 @@ function table.imap(t,fn)
     return nt;
 end
 
+-- random things
 function parseVersion(v)
     if typeof(v) == 'string' then
         local major, minor, patch = v:match('(%w+)%.(%w+)%.(%w+)');
@@ -100,7 +101,7 @@ function pak(t)
     os.pullEvent('key');
 end
 
--- SS
+-- Score Server
 function loadss(ss,dat)
     if ss then
         local conn = http.get(ss,{action="get"});
@@ -108,6 +109,7 @@ function loadss(ss,dat)
         if conn then code, msg = conn.getResponseCode() end;
         if conn ~= nil and code == 200 then
             for _,s in pairs(textutils.unserialiseJSON(conn.readAll())) do
+                --print("loadss.scores.length="..tostring(#dat))
                 s.org = 'ss';
                 table.insert(dat,s);
             end
