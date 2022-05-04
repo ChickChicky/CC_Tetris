@@ -78,6 +78,38 @@ if args[1] == 'update' then
     print();
 end
 
+if not q then
+    print('looking for updates...');
+    local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
+    local code,msg;
+    local ver;
+    if res then code, msg = res.getResponseCode() end;
+    if res ~= nil and code == 200 then
+        res.readLine(); -- just reads the first line; which doesn't matter
+        local ver = tonumber(res.readLine(false));
+        res.close();
+
+        if ver > VERSION then
+            term.setTextColor(colors.lime) print('newer version found, exit and type "tetris update" to download it')
+            
+            local cx,cy = term.getCursorPos();
+            term.setTextColor(colors.gray);
+            print('press any key to continue...');
+            sleep(1);
+            term.setCursorPos(1,cy);
+            term.setTextColor(colors.lightGray);
+            term.write('press any key to continue...');
+            sleep(0.05);
+            term.setCursorPos(1,cy);
+            term.setTextColor(colors.white);
+            term.write('press any key to continue...');
+            os.pullEvent('key');
+        end
+    else
+        print('could not fetch updater');
+    end
+end
+
 local pieces = {
     {
         variants = {
