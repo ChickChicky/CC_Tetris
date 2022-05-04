@@ -59,9 +59,23 @@ if args[1] == 'update' then
     else
         local c = term.getTextColor();
         term.setTextColor(colors.green);
-        print('Up to date');
+        print('Up to date\n');
         term.setTextColor(c);
     end
+
+    term.setTextColor(colors.gray);
+    print('press any key to continue...');
+    sleep(1);
+    local cx,cy = term.getCursorPos();
+    term.setCursorPos(1,cy);
+    term.setTextColor(colors.lightGray);
+    print('press any key to continue...');
+    sleep(0.1):
+    term.setCursorPos(1,cy);
+    term.setTextColor(colors.white);
+    print('press any key to continue...');
+    os.pullEvent('key');
+
 end
 
 local pieces = {
@@ -223,9 +237,8 @@ else
     handle.close();
 end
 
-term.write('Session name (leave blank for none): '); term.setTextColor(colors.magenta); 
 local n;
-if not q then n = read(nil,nil,nil,dat.name) end;
+if not q then term.write('Session name (leave blank for none): '); term.setTextColor(colors.magenta) n = read(nil,nil,nil,dat.name) end;
 if n == '' then
     sname = nil;
 else
