@@ -63,19 +63,19 @@ if args[1] == 'update' then
         term.setTextColor(c);
     end
 
+    local cx,cy = term.getCursorPos();
     term.setTextColor(colors.gray);
     print('press any key to continue...');
     sleep(1);
-    local cx,cy = term.getCursorPos();
     term.setCursorPos(1,cy);
     term.setTextColor(colors.lightGray);
-    print('press any key to continue...');
-    sleep(0.1):
+    term.write('press any key to continue...');
+    sleep(0.05);
     term.setCursorPos(1,cy);
     term.setTextColor(colors.white);
-    print('press any key to continue...');
+    term.write('press any key to continue...');
     os.pullEvent('key');
-
+    print();
 end
 
 local pieces = {
