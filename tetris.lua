@@ -496,14 +496,16 @@ function demo()
     
                                 local handle, err = fs.open('.tetris','r');
                                 local dat;
-                                if handle then dat = textutils.unserialiseJSON(handle.readAll()) end;
+                                if handle then 
+                                    dat = textutils.unserialiseJSON(handle.readAll());
+                                    loadss(ss,dat);
+                                end;
                                 if (err or (not dat) or (#dat.scores==0) ) then
                                     term.setTextColor(colors.lightGray);
                                     print('<no data>');
                                 else
                                     dat = dat.scores;
                                     handle.close();
-                                    loadss(ss,dat);
                                     --table.insert(dat,{t='now',s=score});
                                     table.sort(dat, function(a,b) return a.s > b.s end);
                                     local bsl = 0;
@@ -771,14 +773,16 @@ while true do
 
                             local handle, err = fs.open('.tetris','r');
                             local dat;
-                            if handle then dat = textutils.unserialiseJSON(handle.readAll()) end;
+                            if handle then 
+                                dat = textutils.unserialiseJSON(handle.readAll());
+                                loadss(ss,dat);
+                            end;
                             if (err or (not dat) or (#dat.scores==0) ) then
                                 term.setTextColor(colors.lightGray);
                                 print('<no data>');
                             else
                                 dat = dat.scores;
                                 handle.close();
-                                loadss(ss,dat);
                                 table.insert(dat,{t='now',s=score});
                                 table.sort(dat, function(a,b) return a.s > b.s end);
                                 local bsl = 0;
