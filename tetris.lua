@@ -11,6 +11,8 @@ args = {...};
 
 if args[1] == 'update' then
     q = true;
+    -- old pastebin version
+    --[[
     local res = http.get('https://pastebin.com/raw/g26ueH22');
     res.readLine(); -- just reads the first line; which doesn't matter
     local ver = tonumber(res.readLine(false));
@@ -23,6 +25,31 @@ if args[1] == 'update' then
             term.clear();
             term.setCursorPos(1,1);
             local res = http.get('https://pastebin.com/raw/g26ueH22');
+            local updater = res.readAll();
+            res.close();
+            loadstring(updater)(true); -- runs the updater
+        else
+            print('Cancelling update');
+        end
+    else
+        local c = term.getTextColor();
+        term.setTextColor(colors.green);
+        print('Up to date');
+        term.setTextColor(c);
+    end
+    ]]
+    local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
+    res.readLine(); -- just reads the first line; which doesn't matter
+    local ver = tonumber(res.readLine(false));
+    res.close();
+
+    if ver > VERSION then
+        print('Newer version found; do you wish to proceed with the installation ?');
+        local r = read();
+        if r == 'y' or r == 'Y' or r == 'Yes' or r == 'yes' then
+            term.clear();
+            term.setCursorPos(1,1);
+            local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
             local updater = res.readAll();
             res.close();
             loadstring(updater)(true); -- runs the updater
