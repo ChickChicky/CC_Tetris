@@ -1,3 +1,6 @@
+VERSION = 
+2
+
 typeof = type;
 function table.find(t,match)
     local omatch = match;
