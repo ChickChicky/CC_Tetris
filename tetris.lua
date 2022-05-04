@@ -1,6 +1,3 @@
-VERSION = 
-3
-
 print('loading...');
 
 require('lib'); -- contains useful things
@@ -39,11 +36,11 @@ if args[1] == 'update' then
     end
     ]]
     local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
-    res.readLine(); -- just reads the first line; which doesn't matter
-    local ver = tonumber(res.readLine(false));
+    res.readLine(); -- just reads the first line which doesn't matter
+    local ver = parseVersion(loadstring('return '..res.readLine(false)));
     res.close();
 
-    if ver > VERSION then
+    if ver > parseVersion(VERSION) then
         print('Newer version found; do you wish to proceed with the installation ?');
         local r = read();
         if r == 'y' or r == 'Y' or r == 'Yes' or r == 'yes' then
@@ -82,14 +79,13 @@ if not q then
     print('looking for updates...');
     local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
     local code,msg;
-    local ver;
     if res then code, msg = res.getResponseCode() end;
     if res ~= nil and code == 200 then
-        res.readLine(); -- just reads the first line; which doesn't matter
-        local ver = tonumber(res.readLine(false));
+        res.readLine(); -- just reads the first line which doesn't matter
+        local ver = parseVersion(loadstring('return '..res.readLine(false)));
         res.close();
 
-        if ver > VERSION then
+        if ver > parseVersion(VERSION) then
             term.setTextColor(colors.lime) print('newer version found, exit and type "tetris update" to download it')
             
             local cx,cy = term.getCursorPos();

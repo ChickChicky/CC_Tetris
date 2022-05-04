@@ -1,5 +1,5 @@
 VERSION = 
-3
+'0.4.0'
 
 typeof = type;
 function table.find(t,match)
@@ -72,4 +72,12 @@ function table.imap(t,fn)
         table.insert(nt, fn(v,i,t));
     end
     return nt;
+end
+function parseVersion(v)
+    if typeof(v) == 'string' then
+        local major, minor, patch = v:match('(%w+)%.(%w+)%.(%w+)');
+        return major * 1000000 + minor * 1000 + patch;
+    else
+        return v;
+    end
 end
