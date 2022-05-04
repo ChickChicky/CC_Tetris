@@ -518,8 +518,8 @@ function demo()
                                     dat = textutils.unserialiseJSON(handle.readAll());
                                     --print(#dat.scores);
                                     loadss(ss,dat.scores);
+                                    handle.close();
                                 end;
-                                handle.close();
                                 if ( err and not(dat) ) then
                                     term.setTextColor(colors.lightGray);
                                     print('<no data>');
@@ -814,8 +814,8 @@ while true do
                                 dat = textutils.unserialiseJSON(handle.readAll());
                                 --print(#dat.scores);
                                 loadss(ss,dat.scores);
+                                handle.close();
                             end;
-                            handle.close();
                             if ( err and not(dat) ) then
                                 term.setTextColor(colors.lightGray);
                                 print('<no data>');
