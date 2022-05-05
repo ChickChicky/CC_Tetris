@@ -1,3 +1,6 @@
 **0.5.4**:
 - Added a newline before inputs for better visibility on smaller screens
 - Fixed the scores server not resetting when setting it to empty
+
+**0.5.5**:
+- Fixed the newline not bieng printed before inputs
