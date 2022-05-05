@@ -660,12 +660,14 @@ local g = dat.g;
 local ss = dat.ss;
 if g == nil then g = true end;
 
+local cd = 1; -- cooldown for piece falldown
+
 --local sname = nil; -- session name
 
 os.queueEvent('upd'); -- allows the first frame to be rendered
 while true do
 
-    local id = os.startTimer(1);
+    local id = os.startTimer(cd);
     local evt = {os.pullEventRaw()};
     os.cancelTimer(id);
     local evtName = evt[1];
@@ -691,8 +693,12 @@ while true do
     if evtName == "key" then
         local key = evt[2];
         if (key == keys.k or key == keys.down) then
-            y = y+1;
-            score = score +1*math.max(1,math.floor(#placed/20));
+            if is_valid(piece.variants[variant],placed,x,y+1) then
+                y = y+1;
+                score = score +1*math.max(1,math.floor(#placed/20));
+            else
+                last = last -cd;
+            end
 
         elseif (key == keys.j or key == keys.left) then
             -- makes sure the piece fits in and then moves it to the left
@@ -973,6 +979,7 @@ while true do
 
             x = pp[1];
             y = pp[2];
+            last = last - cd;
         
         elseif (key == keys.u) then
             -- finds the first fitiing variant, cycling counter-clockwise
@@ -994,83 +1001,12 @@ while true do
         break;
     end
 
-    --print('AAA');
-
-    if not is_valid(piece.variants[variant],placed,x,y+1) then
-        if not is_valid(piece.variants[variant],placed,x,y) then y = y -1 end;
-        if y == 0 then
-            break; -- exit
-        end
-        for _,tile in pairs(dclone(piece.variants[variant])) do
-            if typeof(tile) == 'table' then
-                --print('A');
-                table.insert(placed,{tile[1]+x,tile[2]+y,type=dclone(piece.variants[variant].type)});
-            end
-        end
-        --sleep(1);
-        piece = npiece;
-        npiece = pieces[math.random(1,#pieces)];
-        ph = ph ..piece.type;
-        variant = 1;
-        y = 1;
-        x = 4;
-        last = os.clock();
-
-        -- creates a table with each line number and the amount of tiles in that line
-        local lines = {};
-        for _,tile in pairs(placed) do
-            local c = lines[tile[2]] or 0;
-            lines[tile[2]] = c+1;
-        end
-
-        lines = table.ishift(table.filter(lines));
-
-        -- removes the full lines
-        local ll = 0;
-        local ln = 0;
-        local np = textutils.unserialise(textutils.serialise(placed));
-        for n,line in pairs(lines) do
-            if line == 10 then
-                ll = n;
-                ln = ln +1;
-                --[[local np = {};
-                for _,tile in pairs(placed) do
-                    if tile[2] ~= n then
-                        table.insert(np,tile);
-                    end
-                end
-                placed = np;
-                ]]
-                placed = table.ifilter(placed, function(t) return t[2] ~= n end);
-            end
-        end
-
-        -- increases the score
-        if ln == 1 then
-            score = score + 40
-        elseif ln == 2 then
-            score = score + 100
-        elseif ln == 3 then
-            score = score + 300
-        elseif ln == 4 then
-            score = score + 1200
-        else
-            score = score + 250*ln
-        end
-
-        --placed = np;
-
-        -- lowers pieces above the broken line(s)
-        if ln ~= 0 then
-            local np = dclone(placed);
-            for n,tile in pairs(placed) do
-                if tile[2] < ll then
-                    np[n] = {tile[1],tile[2] +ln,type=tile.type};
-                end
-            end
-            placed = np;
-        end
+    -- instantly trigger the piece-placing code if the piece cannot be moved
+    if not is_valid(piece.variants[variant],placed,x,y+1) and (not is_valid(piece.variants[variant],placed,x-1,y) or not is_valid(piece.variants[variant],placed,x+1,y)) then
+        last = last -cd;
     end
+
+    --print('AAA');
 
     --local lines = {};
     --for _,tile in pairs(placed) do
@@ -1124,9 +1060,85 @@ while true do
     --placed = np
 
     -- lowers the piece every second
-    if os.clock()-last >1 then
-        y = y+1;
-        last = os.clock();
+    if os.clock()-last >cd then
+        if not is_valid(piece.variants[variant],placed,x,y+1) then
+            if not is_valid(piece.variants[variant],placed,x,y) then y = y -1 end;
+            if y <= 1 then
+                break; -- exit
+            end
+            for _,tile in pairs(dclone(piece.variants[variant])) do
+                if typeof(tile) == 'table' then
+                    --print('A');
+                    table.insert(placed,{tile[1]+x,tile[2]+y,type=dclone(piece.variants[variant].type)});
+                end
+            end
+            --sleep(1);
+            piece = npiece;
+            npiece = pieces[math.random(1,#pieces)];
+            ph = ph ..piece.type;
+            variant = 1;
+            y = 1;
+            x = 4;
+            last = os.clock();
+    
+            -- creates a table with each line number and the amount of tiles in that line
+            local lines = {};
+            for _,tile in pairs(placed) do
+                local c = lines[tile[2]] or 0;
+                lines[tile[2]] = c+1;
+            end
+    
+            lines = table.ishift(table.filter(lines));
+    
+            -- removes the full lines
+            local ll = 0;
+            local ln = 0;
+            local np = textutils.unserialise(textutils.serialise(placed));
+            for n,line in pairs(lines) do
+                if line == 10 then
+                    ll = n;
+                    ln = ln +1;
+                    --[[local np = {};
+                    for _,tile in pairs(placed) do
+                        if tile[2] ~= n then
+                            table.insert(np,tile);
+                        end
+                    end
+                    placed = np;
+                    ]]
+                    placed = table.ifilter(placed, function(t) return t[2] ~= n end);
+                end
+            end
+    
+            -- increases the score
+            if ln == 1 then
+                score = score + 40
+            elseif ln == 2 then
+                score = score + 100
+            elseif ln == 3 then
+                score = score + 300
+            elseif ln == 4 then
+                score = score + 1200
+            else
+                score = score + 250*ln
+            end
+    
+            --placed = np;
+    
+            -- lowers pieces above the broken line(s)
+            if ln ~= 0 then
+                local np = dclone(placed);
+                for n,tile in pairs(placed) do
+                    if tile[2] < ll then
+                        np[n] = {tile[1],tile[2] +ln,type=tile.type};
+                    end
+                end
+                placed = np;
+            end
+        else
+            y = y+1;
+            last = os.clock();
+        end
     end
 
     -- projection position
