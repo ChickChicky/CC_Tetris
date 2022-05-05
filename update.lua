@@ -1,5 +1,5 @@
 VERSION = 
-'0.5.6'
+'0.5.7'
  
 local args = {...};
 
@@ -106,4 +106,12 @@ else -- installer
 
 end
 
-print()
+local completion = require('cc.shell.completion')
+shell.setCompletionFunction(
+    'tetris.lua', 
+    completion.build(
+        {completion.choice, {"update"}}
+    )
+);
+
+print();

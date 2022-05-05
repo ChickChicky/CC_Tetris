@@ -111,6 +111,14 @@ if not q then
     end
 end
 
+-- playfiled size
+local swidth, sheight = term.getSize();
+local pwidth  = math.max(10, (10 + (22-sheight)) );
+local pheight = math.min(20, (sheight-2) );
+
+--print(pwidth,pheight);
+--sleep(1);
+
 local pieces = {
     {
         variants = {
@@ -282,39 +290,39 @@ function display_frame(c,score,nextp)
     local frame_color = c or colors.gray;
     local cc = term.getBackgroundColor();
     term.setBackgroundColor(frame_color);
-    for x=1,12 do
+    for x=1,pwidth+2 do
         term.setCursorPos(x,1);
         term.write(' ');
     end
-    for y=1,22 do
-        term.setCursorPos(12,y);
+    for y=1,pheight+2 do
+        term.setCursorPos(pwidth+2,y);
         term.write(' ');
     end
-    for x=12,1,-1 do
-        term.setCursorPos(x,22);
+    for x=pwidth+2,1,-1 do
+        term.setCursorPos(x,pheight+2);
         term.write(' ');
     end
-    for y=22,1,-1 do
+    for y=pheight+2,1,-1 do
         term.setCursorPos(1,y);
         term.write(' ');
     end
     term.setBackgroundColor(cc);
     if score ~= nil then
         local tc = term.getTextColor();
-        term.setCursorPos(14,2);
+        term.setCursorPos(pwidth+4,2);
         term.setTextColor(colors.white);
         term.write('Score:');
         term.setTextColor(colors.red);
-        term.setCursorPos(14,3);
+        term.setCursorPos(pwidth+4,3);
         term.write(tostring(score));
         term.setTextColor(tc);
     end
     if nextp ~= nil then
         local tc = term.getTextColor();
-        term.setCursorPos(25,2);
+        term.setCursorPos(pwidth+15,2);
         term.setTextColor(colors.white);
         term.write('Next: ');
-        display_piece(nextp,25,4);
+        display_piece(nextp,pwidth+15,4);
         term.setTextColor(tc);
     end
 end
@@ -323,9 +331,9 @@ function is_outside(p,x,y)
     for _,tile in pairs(p) do
         if typeof(tile) == 'table' then 
             if 
-                tile[2]+y >= 21 or
+                tile[2]+y >= pheight+1 or
                 tile[2]+y <= 0  or
-                tile[1]+x >= 11 or
+                tile[1]+x >= pwidth+1 or
                 tile[1]+x <= 0
             then
                 return true;
@@ -606,16 +614,59 @@ function demo()
             y = 1;
         end
 
+        local width, height = term.getSize();
+
+        local k;
+        local n;
+
+        --[[
+        if width < 70 then
+            k = function(a)
+                local x,y = term.getCursorPos();
+                print(a);
+                term.setCursorPos(13,y+1);
+            end
+            n = 2;
+        else
+            n = 1;
+            k = term.write;
+        end
+
         term.clear();
-        term.setCursorPos(13,1); term.write('Press ') term.setTextColor(colors.blue) term.write('U') term.setTextColor(colors.white) print(' to rotate your shape counter-clockwise');
-        term.setCursorPos(13,2); term.write('Press ') term.setTextColor(colors.blue) term.write('O') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.blue) term.write('I') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Up') term.setTextColor(colors.white)  print(' to rotate your shape clockwise');
-        term.setCursorPos(13,3); term.write('Press ') term.setTextColor(colors.blue) term.write('K') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Down') term.setTextColor(colors.white) print(' to softly drop your piece');
-        term.setCursorPos(13,4); term.write('Press ') term.setTextColor(colors.blue) term.write('J') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Left') term.setTextColor(colors.white) print(' to move your piece to the left');
-        term.setCursorPos(13,5); term.write('Press ') term.setTextColor(colors.blue) term.write('L') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Right') term.setTextColor(colors.white) print(' to move your piece to the right');
-        term.setCursorPos(13,6); term.write('Press ') term.setTextColor(colors.blue) term.write('Space') term.setTextColor(colors.white) print(' to hardly drop your piece');
-        term.setCursorPos(13,7); term.write('Press ') term.setTextColor(colors.blue) term.write('Backspace') term.setTextColor(colors.white) print(' to open the menu');
-        term.setCursorPos(13,8); term.write('Press ') term.setTextColor(colors.blue) term.write('Enter') term.setTextColor(colors.white) print(' to start playing');
-        term.setCursorPos(13,9); term.write('Hold ') term.setTextColor(colors.blue) term.write('Ctrl') term.setTextColor(colors.gray) term.write('+') term.setTextColor(colors.blue) term.write('T') term.setTextColor(colors.white) print(' to leave');
+        term.setCursorPos(13,1); term.write('Press ') term.setTextColor(colors.blue) k('U') term.setTextColor(colors.white) print(' to rotate your shape counter-clockwise');
+        term.setCursorPos(13,2*n); term.write('Press ') term.setTextColor(colors.blue) term.write('O') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.blue) term.write('I') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) k('Up') term.setTextColor(colors.white)  print(' to rotate your shape clockwise');
+        term.setCursorPos(13,3*n); term.write('Press ') term.setTextColor(colors.blue) term.write('K') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) k('Down') term.setTextColor(colors.white) print(' to softly drop your piece');
+        term.setCursorPos(13,4*n); term.write('Press ') term.setTextColor(colors.blue) term.write('J') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) k('Left') term.setTextColor(colors.white) print(' to move your piece to the left');
+        term.setCursorPos(13,5*n); term.write('Press ') term.setTextColor(colors.blue) term.write('L') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) k('Right') term.setTextColor(colors.white) print(' to move your piece to the right');
+        term.setCursorPos(13,6*n); term.write('Press ') term.setTextColor(colors.blue) k('Space') term.setTextColor(colors.white) print(' to hardly drop your piece');
+        term.setCursorPos(13,7*n); term.write('Press ') term.setTextColor(colors.blue) k('Backspace') term.setTextColor(colors.white) print(' to open the menu');
+        term.setCursorPos(13,8*n); term.write('Press ') term.setTextColor(colors.blue) k('Enter') term.setTextColor(colors.white) print(' to start playing');
+        term.setCursorPos(13,9*n); term.write('Hold ') term.setTextColor(colors.blue) term.write('Ctrl') term.setTextColor(colors.gray) term.write('+') term.setTextColor(colors.blue) k('T') term.setTextColor(colors.white) print(' to leave');
+        ]]
+
+        if width < 70 then
+            term.clear();
+            term.setCursorPos(pwidth+3,1); term.setTextColor(colors.blue) term.write('U') term.setTextColor(colors.white) print(' rotate counter-clockwise');
+            term.setCursorPos(pwidth+3,2); term.setTextColor(colors.blue) term.write('O') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.blue) term.write('I') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Up') term.setTextColor(colors.white) print(' rotate clockwise');
+            term.setCursorPos(pwidth+3,3); term.setTextColor(colors.blue) term.write('K') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Down') term.setTextColor(colors.white) print(' soft drop');
+            term.setCursorPos(pwidth+3,4); term.setTextColor(colors.blue) term.write('J') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Left') term.setTextColor(colors.white) print(' move left');
+            term.setCursorPos(pwidth+3,5); term.setTextColor(colors.blue) term.write('L') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Right') term.setTextColor(colors.white) print(' move right');
+            term.setCursorPos(pwidth+3,6); term.setTextColor(colors.blue) term.write('Space') term.setTextColor(colors.white) print(' hard drop');
+            term.setCursorPos(pwidth+3,7); term.setTextColor(colors.blue) term.write('Backspace') term.setTextColor(colors.white) print(' menu');
+            term.setCursorPos(pwidth+3,8); term.setTextColor(colors.blue) term.write('Enter') term.setTextColor(colors.white) print(' start');
+            term.setCursorPos(pwidth+3,9); term.write('Hold ') term.setTextColor(colors.blue) term.write('Ctrl') term.setTextColor(colors.gray) term.write('+') term.setTextColor(colors.blue) term.write('T') term.setTextColor(colors.white) print(' to leave');
+        else
+            term.clear();
+            term.setCursorPos(pwidth+3,1); term.write('Press ') term.setTextColor(colors.blue) term.write('U') term.setTextColor(colors.white) print(' to rotate your shape counter-clockwise');
+            term.setCursorPos(pwidth+3,2); term.write('Press ') term.setTextColor(colors.blue) term.write('O') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.blue) term.write('I') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Up') term.setTextColor(colors.white) print(' to rotate your shape clockwise');
+            term.setCursorPos(pwidth+3,3); term.write('Press ') term.setTextColor(colors.blue) term.write('K') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Down') term.setTextColor(colors.white) print(' to softly drop your piece');
+            term.setCursorPos(pwidth+3,4); term.write('Press ') term.setTextColor(colors.blue) term.write('J') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Left') term.setTextColor(colors.white) print(' to move your piece to the left');
+            term.setCursorPos(pwidth+3,5); term.write('Press ') term.setTextColor(colors.blue) term.write('L') term.setTextColor(colors.gray) term.write('/') term.setTextColor(colors.cyan) term.write('Right') term.setTextColor(colors.white) print(' to move your piece to the right');
+            term.setCursorPos(pwidth+3,6); term.write('Press ') term.setTextColor(colors.blue) term.write('Space') term.setTextColor(colors.white) print(' to hardly drop your piece');
+            term.setCursorPos(pwidth+3,7); term.write('Press ') term.setTextColor(colors.blue) term.write('Backspace') term.setTextColor(colors.white) print(' to open the menu');
+            term.setCursorPos(pwidth+3,8); term.write('Press ') term.setTextColor(colors.blue) term.write('Enter') term.setTextColor(colors.white) print(' to start playing');
+            term.setCursorPos(pwidth+3,9); term.write('Hold ') term.setTextColor(colors.blue) term.write('Ctrl') term.setTextColor(colors.gray) term.write('+') term.setTextColor(colors.blue) term.write('T') term.setTextColor(colors.white) print(' to leave');
+        end
 
         -- term.setCursorPos(13,2); term.write('Press ') O to rotate your shape clockwise');
         -- term.setCursorPos(13,3); term.write('Press ') K to softly drop your piece');
@@ -623,7 +674,7 @@ function demo()
         -- term.setCursorPos(13,5); term.write('Press ') L to move your piece to the right');
         -- term.setCursorPos(13,7); term.write('Press ') Enter to start playing');
         -- term.setCursorPos(13,8); term.write('Press ') Ctrl+T to leave');
-        term.setCursorPos(14,10); print('variant: '..tostring(variant));
+        term.setCursorPos(pwidth+5,11); print('variant: '..tostring(variant));
         display_frame();
         display_piece(pieces[1].variants[variant],x+1,y+1);
     end
@@ -979,7 +1030,7 @@ while true do
 
             x = pp[1];
             y = pp[2];
-            last = last - cd;
+            last = last -cd;
         
         elseif (key == keys.u) then
             -- finds the first fitiing variant, cycling counter-clockwise
@@ -991,12 +1042,12 @@ while true do
                 end
             end
 
-        elseif (key == keys.enter) then
-            break;
+        -- elseif (key == keys.enter) then
+        --     break;
 
         end
     end
-    if evtName == "terminate" then -- CTRL+T (CTRL+C adaptation for craftos)
+    if evtName == "terminate" then -- CTRL+T (CTRL+C adaptation for CC)
         --os.reboot(); -- exit() doesn't work ¯\_(?)_/¯
         break;
     end
