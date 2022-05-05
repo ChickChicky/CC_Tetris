@@ -1,5 +1,3 @@
-print('loading...');
-
 require('lib'); -- contains useful things
 
 local q = false;
@@ -52,11 +50,11 @@ if args[1] == 'update' then
             local updater = loadstring(res.readAll());
             res.close();
             --loadstring(updater)(true); -- runs the updater
-            -- allows the updater to use the require() function as well as other things
             local e = getfenv(updater);
             --for k,v in pairs(e) do print(k) end;
             --print(e.require);
             --for k,v in pairs(_G) do e[k] = v end;
+            -- allows the updater to use the require() function as well as the "shell" global
             e.shell = shell;
             e.require = require;
             setfenv(updater,e);
@@ -188,6 +186,31 @@ for _,p in pairs(pieces) do for _,v in pairs(p.variants) do v.type = p.type end 
 
 local sname = nil; -- session name
 
+if not q then
+    term.clear();
+    term.setCursorPos(1,1);
+end
+
+local handle, err = fs.open('.tetris','r');
+local dat;
+if (err) then
+    dat = {};
+else
+    dat = textutils.unserialiseJSON(handle.readAll()) or {};
+    handle.close();
+end
+
+local gc = dat.gc;
+if gc == nil then gc = colors.lightGray end;
+
+local n;
+if not q then print('Session name (leave blank for none):'); term.setTextColor(colors.magenta) n = read(nil,nil,nil,dat.name) end;
+if n == '' then
+    sname = nil;
+else
+    sname = n;
+end
+
 function random_piece(random_variant) 
     random_variant = random_variant or false;
     -- gets a random piece
@@ -227,7 +250,8 @@ function display_piece(p,x,y,colormode)
         elseif p.type == 'O' then
             color = colors.yellow;
         elseif p.type == 'P' then
-            color = colors.lightGray;
+            --color = colors.lightGray;
+            color = gc;
         end
     end
 
@@ -251,7 +275,8 @@ function display_piece(p,x,y,colormode)
                 elseif pp.type == 'O' then
                     color = colors.yellow;
                 elseif p.type == 'P' then
-                    color = colors.lightGray;
+                    --color = colors.lightGray;
+                    color = gc;
                 end
             end
             term.setCursorPos(pp[1]+x,pp[2]+y);
@@ -270,29 +295,6 @@ function mod(a,b)
     else 
         return a%b 
     end
-end
-
--- graphical cleaning
-if not q then
-    term.clear();
-    term.setCursorPos(1,1);
-end
-
-local handle, err = fs.open('.tetris','r');
-local dat;
-if (err) then
-    dat = {};
-else
-    dat = textutils.unserialiseJSON(handle.readAll()) or {};
-    handle.close();
-end
-
-local n;
-if not q then print('Session name (leave blank for none):'); term.setTextColor(colors.magenta) n = read(nil,nil,nil,dat.name) end;
-if n == '' then
-    sname = nil;
-else
-    sname = n;
 end
 
 function display_frame(c,score,nextp)
@@ -792,7 +794,8 @@ while true do
                 'change session name',
                 'set scores server',
                 'clear',
-                'toggle ghost'
+                'toggle ghost',
+                'ghost color',
             }
             local opt = 0;
 
@@ -995,6 +998,65 @@ while true do
                             handle.write(textutils.serialiseJSON(dat));
                             handle.flush();
                             handle.close();
+
+                            clr();
+                            term.setTextColor(colors.white) term.write('Ghost piece ')
+                            if g then term.setTextColor(colors.green) print("enabled");
+                            else      term.setTextColor(colors.red)   print("disabled");
+                            end
+
+                            pak(.5);
+                        elseif c == 'ghost color' then
+                            local handle, err = fs.open('.tetris','r');
+                            local dat;
+                            if (err) then
+                                dat = {};
+                            else
+                                dat = textutils.unserialiseJSON(handle.readAll()) or {};
+                                handle.close();
+                            end
+                            local e = nil;
+                            while true do 
+                                clr();
+                                term.setTextColor(colors.white);
+
+                                term.write('Available colors: ');
+                                local clrs = table.keys(table.filter(colors,function(v) return typeof(v)=='number' end));
+                                for i,cc in pairs(clrs) do
+                                    local sep = ', ';
+                                    if i == #clrs then
+                                        sep = '';
+                                    end
+                                    local c = colors.white;
+                                    if table.includes({
+                                        'yellow','cyan','green','red','blue','purple'
+                                    },cc) then
+                                        c = colors.gray;
+                                    end
+                                    if cc == table.indexof(colors, dat.gc or gc) then
+                                        c = colors.lightGray;
+                                    end
+                                    term.setTextColor(c) term.write(cc) term.setTextColor(colors.white) term.write(sep);
+                                end
+                                print();
+                            
+                                if e then term.setTextColor(colors.red) print('Invalid color "'..e..'"') term.setTextColor(colors.white) end;
+
+                                print('Ghost piece color (leave blank to reset):'); term.setTextColor(colors.orange); 
+
+                                local n = read(nil,nil,nil,table.indexof(colors,dat.gc or gc));
+
+                                if n == '' then gc = colors.lightGray end;
+
+                                local cc = colors[n];
+                                if cc == nil then
+                                    e = n;
+                                else
+                                    gc = cc;
+                                    break;
+                                end
+                            end
+
                         elseif c == 'set scores server' then
                             local ssa;
                             while true do
@@ -1255,6 +1317,7 @@ if not q then
     dat.name = sname;
     dat.g = g;
     dat.ss = ss;
+    dat.gc = gc;
 
     whandle.write(textutils.serialiseJSON(dat));
     whandle.close();

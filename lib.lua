@@ -1,5 +1,5 @@
 VERSION = 
-'0.6.1'
+'0.6.2'
 
 typeof = type;
 
@@ -23,6 +23,9 @@ function table.indexof(t,match)
     for k,v in pairs(t) do
         if match(v,k) then return k end;
     end
+end
+function table.includes(t,match)
+    return table.indexof(t,match) ~= nil;
 end
 function table.filter(t,match)
     local omatch = match;
@@ -57,10 +60,6 @@ function table.ishift(t)
     end
     return nt;
 end
--- deep-cloning function
-function dclone(t)
-    return textutils.unserialise(textutils.serialise(t));
-end
 function table.map(t,fn)
     local nt = {};
     for k,v in pairs(t) do
@@ -75,6 +74,18 @@ function table.imap(t,fn)
     end
     return nt;
 end
+function table.keys(t)
+    local keys = {};
+    for k in pairs(t) do
+        table.insert(keys,k);
+    end
+    return keys;
+end
+
+-- deep-cloning function
+function dclone(t)
+    return textutils.unserialise(textutils.serialise(t));
+end
 
 -- random things
 function parseVersion(v)
@@ -85,19 +96,20 @@ function parseVersion(v)
         return v;
     end
 end
-function pak(t)
+function pak(t,msg) -- Press Any Key
+    if msg == nil then msg = 'press any key to continue...' end;
     if t == nil then t = 1 end;
     local cx,cy = term.getCursorPos();
     term.setTextColor(colors.gray);
-    print('press any key to continue...');
+    print(msg);
     sleep(t);
     term.setCursorPos(1,cy);
     term.setTextColor(colors.lightGray);
-    term.write('press any key to continue...');
+    term.write(msg);
     sleep(0.05);
     term.setCursorPos(1,cy);
     term.setTextColor(colors.white);
-    term.write('press any key to continue...');
+    term.write(msg);
     os.pullEvent('key');
 end
 

@@ -17,3 +17,7 @@
 
 **0.6.1**
 - Fixed Updater/Installer not being able to add the `update` argument in shell autocompletion
+
+**0.6.2**
+- Added a little message when toggling the ghost
+- Added the ability to change the ghost's color
