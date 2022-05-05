@@ -41,7 +41,7 @@ if args[1] == 'update' then
     res.close();
 
     if parseVersion(ver) > parseVersion(VERSION) then
-        print('Newer version found ('..VERSION..' -> '..ver..'); do you wish to proceed with the installation ?');
+        print('Newer version found ('..VERSION..' -> '..ver..'); do you wish to proceed with the installation ?\n');
         term.setTextColor(colors.cyan);
         local r = read();
         term.setTextColor(colors.white);
@@ -271,7 +271,7 @@ else
 end
 
 local n;
-if not q then term.write('Session name (leave blank for none): '); term.setTextColor(colors.magenta) n = read(nil,nil,nil,dat.name) end;
+if not q then term.write('Session name (leave blank for none): \n'); term.setTextColor(colors.magenta) n = read(nil,nil,nil,dat.name) end;
 if n == '' then
     sname = nil;
 else
@@ -574,7 +574,7 @@ function demo()
                                 dat = nil;
                             elseif c == 'change session name' then
                                 clr();
-                                term.write('New session name (leave blank to clear): '); term.setTextColor(colors.magenta); 
+                                term.write('New session name (leave blank to clear): \n'); term.setTextColor(colors.magenta); 
                                 local n = read(nil,nil,nil,sname);
                                 if n == '' then
                                     sname = nil;
@@ -870,7 +870,7 @@ while true do
                             dat = nil;
                         elseif c == 'change session name' then
                             clr();
-                            term.write('New session name (leave blank to clear): '); term.setTextColor(colors.magenta); 
+                            term.write('New session name (leave blank to clear): \n'); term.setTextColor(colors.magenta); 
                             local n = read(nil,nil,nil,sname);
                             if n == '' then
                                 sname = nil;
@@ -933,14 +933,14 @@ while true do
                             local ssa;
                             while true do
                                 clr();
-                                term.write('new scores server (leave blank to clear): '); term.setTextColor(colors.magenta);
+                                term.write('new scores server (leave blank to clear): \n'); term.setTextColor(colors.magenta);
                                 ssa = read(nil,nil,nil,ssa or ss);
 
-                                if ssa == '' then break end;
+                                if ssa == '' then ssa = nil break end;
 
                                 local conn = http.get(ssa,{action="ping"});
                                 if conn == nil then
-                                    term.write('impossible to connect to the server, do you still want to proceed? '); term.setTextColor(colors.cyan);
+                                    term.write('impossible to connect to the server, do you still want to proceed? \n'); term.setTextColor(colors.cyan);
                                     local r = read(nil,nil,nil,nil);
                                     if r == 'yes' or r == 'y' then
                                         break;
