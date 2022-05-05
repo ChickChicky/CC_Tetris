@@ -1159,6 +1159,9 @@ if not q then
         dat = textutils.unserialiseJSON(rhandle.readAll()) or {scores={}};
         rhandle.close();
     end
+    if dat.scores == nil then
+        dat.scores = {};
+    end
     local whandle = fs.open('.tetris','w');
     if score > 0 then
         -- saves the score
@@ -1170,6 +1173,7 @@ if not q then
             if err then
                 term.setTextColor(colors.red);
                 print('Could not save online score: '..err);
+                table.insert(dat.scores,scoret);
             end
         else
             table.insert(dat.scores,scoret);
