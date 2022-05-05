@@ -52,9 +52,10 @@ if args[1] == 'update' then
             local updater = loadstring(res.readAll());
             res.close();
             --loadstring(updater)(true); -- runs the updater
-            -- allows the updater to use the require() function
+            -- allows the updater to use the require() function as well as other things
             local e = getfenv(updater);
-            e.require = require;
+            for k,v in pairs(_G) do e[k] = v end;
+            setfenv(updater,e);
             updater(true); -- runs the updater
         else
             print('Cancelling update');
