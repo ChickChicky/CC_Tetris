@@ -41,7 +41,7 @@ if args[1] == 'update' then
     res.close();
 
     if parseVersion(ver) > parseVersion(VERSION) then
-        print('Newer version found ('..VERSION..' -> '..ver..'); do you wish to proceed with the installation ?\n');
+        print('Newer version found ('..VERSION..' -> '..ver..'); do you wish to proceed with the installation ?');
         term.setTextColor(colors.cyan);
         local r = read();
         term.setTextColor(colors.white);
@@ -54,7 +54,10 @@ if args[1] == 'update' then
             --loadstring(updater)(true); -- runs the updater
             -- allows the updater to use the require() function as well as other things
             local e = getfenv(updater);
+            --for k,v in pairs(e) do print(k) end;
+            --print(e.require);
             for k,v in pairs(_G) do e[k] = v end;
+            e.require = require;
             setfenv(updater,e);
             updater(true); -- runs the updater
         else
