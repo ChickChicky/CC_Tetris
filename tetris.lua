@@ -57,6 +57,7 @@ if args[1] == 'update' then
             --for k,v in pairs(e) do print(k) end;
             --print(e.require);
             --for k,v in pairs(_G) do e[k] = v end;
+            e.shell = shell;
             e.require = require;
             setfenv(updater,e);
             updater(true); -- runs the updater
