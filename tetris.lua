@@ -49,9 +49,13 @@ if args[1] == 'update' then
             term.clear();
             term.setCursorPos(1,1);
             local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
-            local updater = res.readAll();
+            local updater = loadstring(res.readAll());
             res.close();
-            loadstring(updater)(true); -- runs the updater
+            --loadstring(updater)(true); -- runs the updater
+            -- allows the updater to use the require() function
+            local e = getfenv(updater);
+            e.require = require;
+            updater(true); -- runs the updater
         else
             print('Cancelling update');
         end

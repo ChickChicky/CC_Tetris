@@ -1,5 +1,5 @@
 VERSION = 
-'0.5.7'
+'0.6.1'
 
 typeof = type;
 

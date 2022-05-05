@@ -9,8 +9,11 @@
 - Fixed infinite tower glitch
 - Fixed the peices not sliding (design issue)
 
-**0.5.7**:
+**0.6.0**:
 - Added UI variant for smaller screens in the tutorial
 - Added auto playfield size adjustement to work better on smaller screens
 - Removed exitting when pressing enter in the main game
 - Installer / Updater adds the `update` argument in shell autocompletion
+
+**0.6.1**
+- Fixed Updater/Installer not being able to add the `update` argument in shell autocompletion
