@@ -6,7 +6,7 @@ This project is meant to be used on Computercraft, a Minecraft mod that can be d
 
 ## Installing
 
-You can directly clone this repo into the computer's files or run `wget run https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua` to launch the installer.
+You can directly clone this repo into the computer's files or run `wget run https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua` (or `pastebin run g26ueH22`) to launch the installer.
 ![](img/install.png)
 
 ---
@@ -40,11 +40,12 @@ By pressing <kbd>Return</kbd>, a menu with 6 "buttons" opens.<br>
 - **Set scores server**: more info [here](#Scores-Server)
 - **Clear**: clears the board and resets your score **BUT IT DOES NOT SAVE**
 - **Toggle ghost**: toggles the projection of where your piece will land
-- **Ghost color**: allows you to change the ghost color
+- **Ghost color**: allows you to change the color of the ghost
 
 ---
 
 ## Scoring
+
 Earninig points is pretty simple, it can be done by competing lines:
 |number of lines|points|
 |:-------------:|:----:|
@@ -53,7 +54,9 @@ Earninig points is pretty simple, it can be done by competing lines:
 |3              |300   |
 |4              |1200  |
 
-Moving manually down a piece also rewards points, 1 every 20 placed pieces starting from 1
+Soft dropping also rewards points, 1 every 20 placed pieces starting from 1<br>
+Hard dropping rewards one point per tile moved down
+
 
 
 
@@ -97,7 +100,7 @@ let server = http.createServer(function(req,res){
         }
 
         if (action == 'save') {
-            let dat = JSON.parse(payload); // parsed the score data
+            let dat = JSON.parse(payload); // parses the score data
             let db = load_db(); // loads the DB
 
             db.sstetris = (db.sstetris??[]).concat(dat); // adds the score to the existing ones
@@ -116,5 +119,17 @@ server.listen(addr.port, addr.host, 1, function() {
 ```
 A CCTetris client will only use 3 request types: `ping`, `get`, `save` which are stored in the `action` header
 - **ping**: this is sent when trying to set the SS in the menu, this is to ensure the server can be joined, it doesn't execpt any particular response, the server just has to respond
-- **get**: this is sent when loading the scores from the scoreboard, it expects the server to respond with an array containing [score-like objects](#scores)
-- **save**: this is sent when the clients wants to register a new score on the server, the score data can be found in the `payload` header, as a [score-like object](#scores), no particular response is expacted from the server
+- **get**: this is sent when loading the scores from the scoreboard, it expects the server to respond with an array containing [score-like objects](#Score-Like-Objects)
+- **save**: this is sent when the clients wants to register a new score on the server, the score data can be found in the `payload` header, as a [score-like object](#Score-Like-Objects), no particular response is expected from the server
+
+# Score-Like Objects
+
+A *score-like object* is a JSON object containing data about a score, here are its attributes:
+
+|name | type | optionnal ? |                    description                     |
+|:---:|:----:|:-----------:|:---------------------------------------------------|
+|  t  |number|     no      |the timsestamp of when the score has been registered|
+|  s  |number|     no      |the score value                                     |
+|  n  |string|     yes     |the name of the user who realized the score         |
+|  u  |string|     yes     |the URL of the server the score was registered at   |
+|  p  |string|     yes     |the list of all the pieces placed                   |

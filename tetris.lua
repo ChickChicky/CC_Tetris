@@ -2,7 +2,7 @@ require('lib'); -- contains useful things
 
 local q = false;
 
-args = {...};
+local args = {...};
 
 if args[1] == 'update' then
     q = 2;
@@ -211,7 +211,7 @@ else
     sname = n;
 end
 
-function random_piece(random_variant) 
+local function random_piece(random_variant) 
     random_variant = random_variant or false;
     -- gets a random piece
     local piece = pieces[math.random(1,#pieces)];
@@ -227,7 +227,7 @@ function random_piece(random_variant)
     end
 end;
 
-function display_piece(p,x,y,colormode)
+local function display_piece(p,x,y,colormode)
     colormode = colormode or 0;
 
     local bg = term.getBackgroundColor();
@@ -289,7 +289,7 @@ function display_piece(p,x,y,colormode)
 
 end
 
-function mod(a,b) 
+local function mod(a,b) 
     if a<0 then 
         return (a%b)+b 
     else 
@@ -297,7 +297,7 @@ function mod(a,b)
     end
 end
 
-function display_frame(c,score,nextp)
+local function display_frame(c,score,nextp)
     local frame_color = c or colors.gray;
     local cc = term.getBackgroundColor();
     term.setBackgroundColor(frame_color);
@@ -338,7 +338,7 @@ function display_frame(c,score,nextp)
     end
 end
 
-function is_outside(p,x,y)
+local function is_outside(p,x,y)
     for _,tile in pairs(p) do
         if typeof(tile) == 'table' then 
             if 
@@ -354,7 +354,7 @@ function is_outside(p,x,y)
     return false;
 end
 
-function is_valid(p,P,x,y)
+local function is_valid(p,P,x,y)
     if is_outside(p,x,y) then return false end;
     term.setTextColor(colors.brown);
     for _,Ptile in pairs(P) do
@@ -373,12 +373,12 @@ function is_valid(p,P,x,y)
     return true;
 end
 
-function is_empty(P,x,y)
+local function is_empty(P,x,y)
     return is_valid({{0,0}},P,x,y);
 end
 
 -- it's more like a tutorial :/
-function demo()
+local function demo()
     local variant = 1;
 
     local x = 1;
@@ -457,7 +457,7 @@ function demo()
                 local opt = 0;
 
                 while true do
-                    function clr()
+                    local function clr()
                         term.clear();
                         term.setCursorPos(1,1);
     
@@ -800,7 +800,7 @@ while true do
             local opt = 0;
 
             while true do
-                function clr()
+                local function clr()
                     term.clear();
                     term.setCursorPos(1,1);
 
@@ -1098,6 +1098,8 @@ while true do
             os.pullEvent('key');
 
         elseif (key == keys.space) then
+
+            score = score +(pp[2]-y)
 
             x = pp[1];
             y = pp[2];
