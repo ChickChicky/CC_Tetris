@@ -1218,7 +1218,7 @@ while true do
             local ln = 0;
             local np = textutils.unserialise(textutils.serialise(placed));
             for n,line in pairs(lines) do
-                if line == pwidth then
+                if line >= pwidth then
                     ll = n;
                     ln = ln +1;
                     --[[local np = {};
@@ -1252,7 +1252,7 @@ while true do
             if ln ~= 0 then
                 local np = dclone(placed);
                 for n,tile in pairs(placed) do
-                    if tile[2] < ll then
+                    if tile[2] <= ll then
                         np[n] = {tile[1],tile[2] +ln,type=tile.type};
                     end
                 end

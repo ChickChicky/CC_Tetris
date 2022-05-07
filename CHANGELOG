@@ -27,3 +27,7 @@
 
 **0.6.4**:
 - Fixed lines not breaking on smaller screens
+
+**0.6.5**:
+- Fixed a glitch that caused lines to not break
+- Posssibly fixed a glitch that caused lines to remain empty

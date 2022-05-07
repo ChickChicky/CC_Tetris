@@ -123,7 +123,7 @@ A CCTetris client will only use 3 request types: `ping`, `get`, `save` which are
 - **save**: this is sent when the clients wants to register a new score on the server, the score data can be found in the `payload` header, as a [score-like object](#Score-Like-Objects), no particular response is expected from the server
 
 I hosted a SS on [Pythonanywhere](https://pythonanywhere.com) at *https://chickbot.eu.pythonanywhere.com/sstetris*<br>
-<mark>The name you use will be available to anyone !</mark>
+<mark>**The name you use will be available to anyone**</mark>
 
 # Score-Like Objects
 
