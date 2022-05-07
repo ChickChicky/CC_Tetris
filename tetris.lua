@@ -1093,6 +1093,7 @@ while true do
         elseif (key == keys.d) then
 
             print(textutils.serialise(placed));
+            print(swidth);
             os.pullEvent('key');
 
         elseif (key == keys.space) then
@@ -1217,7 +1218,7 @@ while true do
             local ln = 0;
             local np = textutils.unserialise(textutils.serialise(placed));
             for n,line in pairs(lines) do
-                if line == swidth then
+                if line == pwidth then
                     ll = n;
                     ln = ln +1;
                     --[[local np = {};
