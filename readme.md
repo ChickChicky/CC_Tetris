@@ -6,7 +6,7 @@ This project is meant to be used on Computercraft, a Minecraft mod that can be d
 
 ## Installing
 
-You can directly clone this repo into the computer's files or run `wget run https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua` (or `pastebin run g26ueH22`) to launch the installer.
+You can directly clone this repo into the computer's files or run `wget run https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua` (or `pastebin run g26ueH22`) to launch the installer.<br>
 ![](img/install.png)
 
 ---
@@ -21,7 +21,7 @@ Alternatively, you can type `wget run https://raw.githubusercontent.com/ChickChi
 
 ## Simple guide
 
-Once installed, you can run the `tetris` command and you will see this:
+Once installed, you can run the `tetris` command and you will see this:<br>
 ![](img/sessionname_prompt.png)
 
 You can input a name that will be associated with the scores you get, but you can leave it empty if you want.<br>
@@ -121,6 +121,9 @@ A CCTetris client will only use 3 request types: `ping`, `get`, `save` which are
 - **ping**: this is sent when trying to set the SS in the menu, this is to ensure the server can be joined, it doesn't execpt any particular response, the server just has to respond
 - **get**: this is sent when loading the scores from the scoreboard, it expects the server to respond with an array containing [score-like objects](#Score-Like-Objects)
 - **save**: this is sent when the clients wants to register a new score on the server, the score data can be found in the `payload` header, as a [score-like object](#Score-Like-Objects), no particular response is expected from the server
+
+I hosted a SS on [Pythonanywhere](https://pythonanywhere.com) at *https://chickbot.eu.pythonanywhere.com/sstetris*<br>
+<mark>The name you use will be available to anyone !</mark>
 
 # Score-Like Objects
 

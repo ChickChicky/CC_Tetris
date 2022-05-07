@@ -24,3 +24,6 @@
 
 **0.6.3**:
 - Added some points when hard dropping a piece
+
+**0.6.4**:
+- Fixed lines not breaking on smaller screens

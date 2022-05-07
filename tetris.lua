@@ -4,6 +4,26 @@ local q = false;
 
 local args = {...};
 
+function update()
+
+    term.clear();
+    term.setCursorPos(1,1);
+    local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
+    local updater = loadstring(res.readAll());
+    res.close();
+    --loadstring(updater)(true); -- runs the updater
+    local e = getfenv(updater);
+    --for k,v in pairs(e) do print(k) end;
+    --print(e.require);
+    --for k,v in pairs(_G) do e[k] = v end;
+    -- allows the updater to use the require() function as well as the "shell" global
+    e.shell = shell;
+    e.require = require;
+    setfenv(updater,e);
+    updater(true); -- runs the updater
+
+end
+
 if args[1] == 'update' then
     q = 2;
     -- old pastebin version
@@ -44,21 +64,7 @@ if args[1] == 'update' then
         local r = read();
         term.setTextColor(colors.white);
         if r == 'y' or r == 'Y' or r == 'Yes' or r == 'yes' then
-            term.clear();
-            term.setCursorPos(1,1);
-            local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
-            local updater = loadstring(res.readAll());
-            res.close();
-            --loadstring(updater)(true); -- runs the updater
-            local e = getfenv(updater);
-            --for k,v in pairs(e) do print(k) end;
-            --print(e.require);
-            --for k,v in pairs(_G) do e[k] = v end;
-            -- allows the updater to use the require() function as well as the "shell" global
-            e.shell = shell;
-            e.require = require;
-            setfenv(updater,e);
-            updater(true); -- runs the updater
+            update();
         else
             print('Cancelling update');
         end
@@ -98,20 +104,12 @@ if not q then
         --sleep(5);
 
         if parseVersion(ver) > parseVersion(VERSION) then
-            term.setTextColor(colors.lime) print('newer version found ('..VERSION..' -> '..ver..'), exit and type "tetris update" to download it')
-            
-            local cx,cy = term.getCursorPos();
-            term.setTextColor(colors.gray);
-            print('press any key to continue...');
-            sleep(1);
-            term.setCursorPos(1,cy);
-            term.setTextColor(colors.lightGray);
-            term.write('press any key to continue...');
-            sleep(0.05);
-            term.setCursorPos(1,cy);
-            term.setTextColor(colors.white);
-            term.write('press any key to continue...');
-            os.pullEvent('key');
+            term.setTextColor(colors.lime) print('newer version found ('..VERSION..' -> '..ver..'), press y to download, press any other key to ignore')
+            local evt, key = {os.pullEvent('key')};
+            if key == keys.y then
+                update();
+                q = 2;
+            end
         end
     else
         print('could not fetch updater');
@@ -1219,7 +1217,7 @@ while true do
             local ln = 0;
             local np = textutils.unserialise(textutils.serialise(placed));
             for n,line in pairs(lines) do
-                if line == 10 then
+                if line == swidth then
                     ll = n;
                     ln = ln +1;
                     --[[local np = {};
