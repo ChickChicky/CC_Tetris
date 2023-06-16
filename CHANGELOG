@@ -31,3 +31,6 @@
 **0.6.5**:
 - Fixed a glitch that caused lines to not break
 - Posssibly fixed a glitch that caused lines to remain empty
+
+**0.7.0**:
+- Fixed the updater crashing, **/!\** Older versions will not be able to update automatically, you need to do the update manually
