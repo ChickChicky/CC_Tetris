@@ -29,7 +29,6 @@ if args[1] == 'update' then
     -- old pastebin version
     --[[
     local res = http.get('https://pastebin.com/raw/g26ueH22');
-    res.readLine(); -- just reads the first line; which doesn't matter
     local ver = tonumber(res.readLine(false));
     res.close();
 
@@ -54,8 +53,7 @@ if args[1] == 'update' then
     end
     ]]
     local res = http.get('https://raw.githubusercontent.com/ChickChicky/CC_Tetris/main/update.lua');
-    res.readLine(); -- just reads the first line which doesn't matter
-    local ver = loadstring('return '..res.readLine(false))();
+    local ver = loadstring('local'..res.readLine(false)..'\nreturn VERSION')();
     res.close();
 
     if parseVersion(ver) > parseVersion(VERSION) then
@@ -96,8 +94,7 @@ if not q then
     local code,msg;
     if res then code, msg = res.getResponseCode() end;
     if res ~= nil and code == 200 then
-        res.readLine(); -- just reads the first line which doesn't matter
-        local ver = loadstring('return '..res.readLine(false))();
+        local ver = loadstring('local'..res.readLine(false)..'\nreturn VERSION')();
         res.close();
 
         --print(VERSION,ver)
